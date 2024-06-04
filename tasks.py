@@ -33,7 +33,6 @@ class CvTasks:
         Example:
 
         [
-            
                         "name": "Sample Name",
                         "cv_experience": "Sample experience description.",
                         "cv_skills": "Sample skills description.",
@@ -77,7 +76,7 @@ class CvTasks:
 
                 CommentedCV:
                 [
-                
+                    
                     "name": "Sample Name",
                     "cv_experience": "Sample experience description.",
                     "commented_cv_experience": "Sample commented experience.",
@@ -211,7 +210,7 @@ class LinkedinTasks:
                         "commented_linkedin_activity": "Sample commented LinkedIn activity.",
                         "linkedin_comments": "Sample LinkedIn comments.",
                         "commented_linkedin_comments": "Sample commented LinkedIn comments."
-
+                        
                     ]
                     """
                 ),
@@ -254,35 +253,10 @@ class ComparaisonTasks:
                 Comparaison:
                 [
                     
-                        "name": "Sample Name",
-                        "cv_experience": "Sample experience description.",
-                        "commented_cv_experience": "Sample commented experience.",
-                        "cv_skills": "Sample skills.",
-                        "commented_cv_skills": "Sample commented skills.",
-                        "cv_education": "Sample education details.",
-                        "commented_cv_education": "Sample commented education details.",
-                        "cv_languages": "Sample languages.",
-                        "commented_cv_languages": "Sample commented languages.",
-                        "linkedin_experience": "Sample LinkedIn experience.",
-                        "commented_linkedin_experience": "Sample commented LinkedIn experience.",
-                        "linkedin_education": "Sample LinkedIn education details.",
-                        "commented_linkedin_education": "Sample commented LinkedIn education details.",
-                        "linkedin_skills": "Sample LinkedIn skills.",
-                        "commented_linkedin_skills": "Sample commented LinkedIn skills.",
-                        "linkedin_languages": "Sample LinkedIn languages.",
-                        "commented_linkedin_languages": "Sample commented LinkedIn languages.",
-                        "linkedin_recommendations": "Sample LinkedIn recommendations.",
-                        "commented_linkedin_recommendations": "Sample commented LinkedIn recommendations.",
-                        "linkedin_certifications": "Sample LinkedIn certifications.",
-                        "commented_linkedin_certifications": "Sample commented LinkedIn certifications.",
-                        "linkedin_volunteering": "Sample LinkedIn volunteering details.",
-                        "commented_linkedin_volunteering": "Sample commented LinkedIn volunteering details.",
-                        "linkedin_course": "Sample LinkedIn course details.",
-                        "commented_linkedin_course": "Sample commented LinkedIn course details.",
-                        "linkedin_activity": "Sample LinkedIn activity.",
-                        "commented_linkedin_activity": "Sample commented LinkedIn activity.",
-                        "linkedin_comments": "Sample LinkedIn comments.",
-                        "commented_linkedin_comments": "Sample commented LinkedIn comments."
+                        "experience_compared": "Sample comparison of experience between CV and LinkedIn profiles.",
+                        "education_compared": "Sample comparison of education between CV and LinkedIn profiles.",
+                        "skills_compared": "Sample comparison of skills between CV and LinkedIn profiles.",
+                        "languages_compared": "Sample comparison of languages between CV and LinkedIn profiles."
                     
                 ]
                 """
@@ -320,8 +294,8 @@ class ComparaisonTasks:
                 SocialMediaAnalysis:
                 [
                     
-                "extra": "Sample extra information from LinkedIn profile.",
-                "behaviour": "Sample analysis of online behavior."
+                    "extra": "Sample extra information from LinkedIn profile.",
+                    "behaviour": "Sample analysis of online behavior."
                     
                 ]
                 """
@@ -359,15 +333,16 @@ class EnrichementTasks:
 
             Example:
 
-            CVEnrichement:
-           "cv_enrichement": "The LinkedIn profile corroborates the CV details, highlighting consistent themes in professional experience, education, and skills." 
-           "Both sources confirm the individual's expertise and qualifications."
-            "Additionally, the individual's active online presence and community engagement provide further evidence of their professional involvement and continuous learning."
+            "cv_enrichement": "The LinkedIn profile confirms the information presented in the CV. The extensive experience in software development, 
+                leadership roles, and academic credentials are consistently highlighted across both platforms. The proficiency in multiple programming languages 
+                and methodologies is evident. The active online presence, demonstrated through contributions and engagement in the tech community, 
+                along with volunteer work and additional certifications, further enhance the profile, indicating a commitment to continuous learning and community involvement."
 
 
                 """
             ),
             agent=agent,
             context=context,
-            async_exectution=True
+            async_exectution=True,
+            output_json= "{CVProfile:name}cvenrichement.json"
         )
