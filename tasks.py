@@ -1,7 +1,7 @@
 from crewai import Task
 from pydantic_models import CVProfile,CommentedCV,LinkedinProfile,CommentedLinkedin,Comparaison,CVEnrichement,SocialMediaAnalysis
 from textwrap import dedent
-
+import json
 
 class CvTasks:
 
@@ -50,7 +50,6 @@ class CvTasks:
         
 
         )
-    
     def comment_cv_task(self, agent, context):
         return Task(
 
@@ -312,7 +311,7 @@ class EnrichementTasks:
     def __tip_section(self):
         return "if you do your BEST WORK, I'll give you a $10 000 commission!"
 
-    def enrichement_task(self,agent,context):
+    def enrichement_task(self,agent,context,output_filename):
         return Task(
             description=dedent(
                   f"""
@@ -344,5 +343,11 @@ class EnrichementTasks:
             agent=agent,
             context=context,
             async_exectution=True,
-            output_json= "{CVProfile:name}cvenrichement.json"
+            output_json= output_filename
         )
+    
+
+
+    def save_task_output(self, output, filename):
+         with open(filename, 'w') as file:
+            json.dump(output, file)

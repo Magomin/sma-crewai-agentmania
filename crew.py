@@ -46,10 +46,10 @@ llama_3_8b = ChatOpenAI(
         
 
 class MyCrew:
-    def __init__(self,cv,json):
+    def __init__(self,cv,json,output_filename):
         self.cv =cv
         self.json = json
-
+        self.output_filename= output_filename
     def run(self):
 
         
@@ -88,7 +88,7 @@ class MyCrew:
         social_media_analysis_task=tasks[2].social_media_analysis_task(information_comparaison_agent,[comment_linkedin_profile_task,compare_cv_linkedin_comments_task])
 
         #Enrichement Tasks
-        enrichement_task=tasks[3].enrichement_task(enrichement_agent,[compare_cv_linkedin_comments_task,social_media_analysis_task])
+        enrichement_task=tasks[3].enrichement_task(enrichement_agent,[compare_cv_linkedin_comments_task,social_media_analysis_task],self.output_filename)
         
 
 
