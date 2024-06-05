@@ -105,13 +105,6 @@ class LinkedinScraperScript:
                 comments: List[str]
 
             output_data_py = []
-            output_data_dict = []
-
-            # Directory to save JSON files
-            output_directory = r"C:\Users\domin\Desktop\sma-crewai-agentmania\Json_scrap_output"
-            os.makedirs(output_directory, exist_ok=True)
-
-            self.latest_json_path = ""
 
             for page_inside in urls:
                 sleep(2)
@@ -119,8 +112,6 @@ class LinkedinScraperScript:
                 page_source = BeautifulSoup(driver.page_source, 'html.parser')
 
                 info_div = page_source.find('div', class_='mt2 relative')
-                info_loc = info_div.find_all('a href')
-
                 name = page_source.find('h1').get_text()
                 job = page_source.find('div', class_="text-body-medium break-words").get_text().strip()
                 location = info_div.find('span', class_="text-body-small inline t-black--light break-words").get_text().strip()
@@ -228,42 +219,9 @@ class LinkedinScraperScript:
                 )
 
                 output_data_py.append(profile_py)
-
-                profile_dict = {
-                    "name": name,
-                    "job": job,
-                    "location": location,
-                    "skills": [element.get_text().strip() for element in captured_span],
-                    "experience": [element.get_text().strip() for element in captured_span],
-                    "certifications": [element.get_text().strip() for element in certification_span],
-                    "languages": [element.get_text().strip() for element in language_span],
-                    "recommendations": [element.get_text().strip() for element in recommendation_span],
-                    "courses": [element.get_text().strip() for element in course_span],
-                    "organizations": [element.get_text().strip() for element in organisation_span],
-                    "volunteering": [element.get_text().strip() for element in voluntering_span],
-                    "activity": [element.get_text().strip() for element in activity_span],
-                    "comments": [element.get_text().strip() for element in comment_span]
-                }
-
-                # Append the profile data to the output list
-                output_data_dict.append(profile_dict)
-
-                # Generate the filename using the profile name
-                profile_name = profile_dict["name"].replace(" ", "_")  # Replace spaces with underscores
-                filename = os.path.join(output_directory, f"{profile_name}_profile.json")
-
-                # Save the JSON output to a file
-                with open(filename, "w", encoding="utf-8") as file:
-                    json.dump(profile_dict, file, indent=4, ensure_ascii=False)
-
-                print(f"Output saved to {filename}.")  # Print the file save message
-                self.latest_json_path = filename  # Store the latest file path
-
-            elapsed_time = time.time() - start_time  # Calculate elapsed time
-            print(f"Scraping completed in {elapsed_time:.2f} seconds.")
-
-            return self.latest_json_path  # Return the latest JSON file path
-
+                
+                return output_data_py # Return the latest JSON file path
+                    
 '''
 Test to see if script is still working
 '''

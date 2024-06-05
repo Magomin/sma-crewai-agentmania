@@ -45,93 +45,114 @@ llama_3_8b = ChatOpenAI(
         )
         
 
-class MyCrew:
-    def __init__(self,cv,json):
+class CvCrew:
+    def __init__(self,cv):
         self.cv =cv
-        self.json = json
-        
+
     def run(self):
 
-        
-
         agents = (InformationRetrieverAgents(),InformationAnalystAgents())
-        tasks =  (CvTasks(),LinkedinTasks(),ComparaisonTasks(),EnrichementTasks())
+        tasks = (CvTasks())
+
+
 
         """
+        
         Agents
         """
         #information retriever agents
         cv_info_retriever_agent = agents[0].cv_info_retriever_agent(self.cv)
-        linkedin_info_retriever_agent=agents[0].linkedin_info_retriever_agent(self.json)
-
-        #Information analyst agents
         cv_information_analyst_agent=agents[1].cv_information_analyst_agent()
-        linkedin_information_analyst_agent=agents[1].linkedin_information_analyst_agent()
-        information_comparaison_agent=agents[1].information_comparaison_agent()
-        enrichement_agent=agents[1].enrichement_agent()
-       
 
         """
         Tasks
         """
 
         #CV Tasks
-        get_cvprofile_task=tasks[0].get_cvprofile_task(cv_info_retriever_agent,self.cv)
-        comment_cv_task=tasks[0].comment_cv_task(cv_info_retriever_agent,[get_cvprofile_task])
+        get_cvprofile_task=tasks.get_cvprofile_task(cv_info_retriever_agent,self.cv)
+        comment_cv_task=tasks.comment_cv_task(cv_information_analyst_agent,[get_cvprofile_task])
+
+        #CvCrew
+        cv_crew = Crew(
+            agents=[
+
+               cv_info_retriever_agent,
+               cv_information_analyst_agent,
+         
+            ],
+            tasks=[
+
+                get_cvprofile_task,
+                comment_cv_task,
+
+            ],
+            verbose=True,
+            process=Process.sequential,
+            manager_llm= claude_3_haiku,
+        )
+
+        result_cv_crew = cv_crew.kickoff()
+        return result_cv_crew
+
+class LinkedinCrew:
+    def __init__(self,linkdedinpydantic):
+        self.linkedinpydantic = linkdedinpydantic
+        
+    def run(self):
+
+        
+
+        agents = (InformationRetrieverAgents(),InformationAnalystAgents())
+        tasks =  (LinkedinTasks())
+
+        """
+        Agents
+        """
+        #information retriever agents
+        linkedin_info_retriever_agent=agents[0].linkedin_info_retriever_agent(self.linkedinpydantic)
+
+        #Information analyst agents
+        linkedin_information_analyst_agent=agents[1].linkedin_information_analyst_agent()
+
+       
+
+        """
+        Tasks
+        """
+
 
         #Linkedin Tasks
-        get_linkedin_profile_task=tasks[1].get_linkedin_profile_task(linkedin_info_retriever_agent,self.json,[comment_cv_task])
-        comment_linkedin_profile_task=tasks[1].comment_linkedin_profile_task(linkedin_information_analyst_agent,[get_linkedin_profile_task])
+        get_linkedin_profile_task=tasks.get_linkedin_profile_task(linkedin_info_retriever_agent,self.linkedinpydantic)
+        comment_linkedin_profile_task=tasks.comment_linkedin_profile_task(linkedin_information_analyst_agent,[get_linkedin_profile_task])
 
-        #Comparaison Tasks
-        compare_cv_linkedin_comments_task=tasks[2].compare_cv_linkedin_comments_task(information_comparaison_agent,[comment_cv_task,comment_linkedin_profile_task])
-        social_media_analysis_task=tasks[2].social_media_analysis_task(information_comparaison_agent,[comment_linkedin_profile_task,compare_cv_linkedin_comments_task])
+        
 
-        #Enrichement Tasks
-        enrichement_task=tasks[3].enrichement_task(enrichement_agent,[compare_cv_linkedin_comments_task,social_media_analysis_task])
+
         
 
 
 
 
         #Define your custom Crew here
-        crew = Crew(
+        linkedin_crew = Crew(
             agents=[
 
-               cv_info_retriever_agent,
+
                linkedin_info_retriever_agent,
-               cv_information_analyst_agent,
                linkedin_information_analyst_agent,
-               information_comparaison_agent,
-               enrichement_agent
+
                 
             ],
             tasks=[
-
-                get_cvprofile_task,
-                comment_cv_task,
                 get_linkedin_profile_task,
                 comment_linkedin_profile_task,
-                compare_cv_linkedin_comments_task,
-                social_media_analysis_task,
-                enrichement_task,
-           
+         
             ],
             verbose=True,
             process=Process.sequential,
             manager_llm= claude_3_haiku
         )
 
-        result = crew.kickoff()
+        result = linkedin_crew.kickoff()
         return result
     
-
-
-
-
-
-
-
-  
-
-        

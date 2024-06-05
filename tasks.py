@@ -100,16 +100,16 @@ class LinkedinTasks:
         return "if you do your BEST WORK, I'll give you a $10 000 commission!"
 
 
-    def get_linkedin_profile_task(self, agent, linkedin_json,context):
+    def get_linkedin_profile_task(self, agent, linkdedinpydantic):
         return Task(
             description=dedent(
                 f"""
-                **Task**: Extract the information from the LinkedIn profile stored as JSON ({linkedin_json}) and parse it into a Pydantic model called {LinkedinProfile}.
+                **Task**:  {linkdedinpydantic} parsed it into a Pydantic model called {LinkedinProfile}.
 
-                **Description**: Retrieve the JSON data representing a LinkedIn profile and map the relevant fields to the {LinkedinProfile} Pydantic model. Ensure that the extracted information is accurately reflected in the corresponding fields of the model.
+                **Description**: Retrieve {linkdedinpydantic} representing a LinkedIn profile and map the relevant fields to the {LinkedinProfile} Pydantic model. Ensure that the extracted information is accurately reflected in the corresponding fields of the model.
 
                 **Parameters**:
-                - linkedin_json: The JSON data containing the LinkedIn profile information.
+                - linkdedinpydantic: {linkdedinpydantic}
                 - LinkedinProfile: {LinkedinProfile}
 
                 **Note**: {self.__tip_section()}
@@ -125,14 +125,7 @@ class LinkedinTasks:
                     [
                         
                         "name": "Sample Name",
-                        "cv_experience": "Sample experience description.",
-                        "commented_cv_experience": "Sample commented experience.",
-                        "cv_skills": "Sample skills.",
-                        "commented_cv_skills": "Sample commented skills.",
-                        "cv_education": "Sample education details.",
-                        "commented_cv_education": "Sample commented education details.",
-                        "cv_languages": "Sample languages.",
-                        "commented_cv_languages": "Sample commented languages.",
+                       
                         "linkedin_experience": "Sample LinkedIn experience.",
                         "linkedin_education": "Sample LinkedIn education details.",
                         "linkedin_skills": "Sample LinkedIn skills.",
@@ -148,7 +141,6 @@ class LinkedinTasks:
                     """
                 ),
                 agent=agent,
-                context=context,
                 async_exectution=True
                 
             )
@@ -181,14 +173,6 @@ class LinkedinTasks:
                     [
                         
                         "name": "Sample Name",
-                        "cv_experience": "Sample experience description.",
-                        "commented_cv_experience": "Sample commented experience.",
-                        "cv_skills": "Sample skills.",
-                        "commented_cv_skills": "Sample commented skills.",
-                        "cv_education": "Sample education details.",
-                        "commented_cv_education": "Sample commented education details.",
-                        "cv_languages": "Sample languages.",
-                        "commented_cv_languages": "Sample commented languages.",
                         "linkedin_experience": "Sample LinkedIn experience.",
                         "commented_linkedin_experience": "Sample commented LinkedIn experience.",
                         "linkedin_education": "Sample LinkedIn education details.",
@@ -215,7 +199,7 @@ class LinkedinTasks:
                 ),
                 agent=agent,
                 context=context,
-                async_exectution=True
+                async_execution=True
 
             )
 
@@ -262,7 +246,7 @@ class ComparaisonTasks:
             ),
             agent=agent,
             context=context,
-            async_exectution=True
+            async_execution=True
 
         )
 
@@ -311,7 +295,7 @@ class EnrichementTasks:
     def __tip_section(self):
         return "if you do your BEST WORK, I'll give you a $10 000 commission!"
 
-    def enrichement_task(self,agent,context,output_filename):
+    def enrichement_task(self,agent,context):
         return Task(
             description=dedent(
                   f"""
@@ -342,12 +326,8 @@ class EnrichementTasks:
             ),
             agent=agent,
             context=context,
-            async_exectution=True,
-            output_json= output_filename
+            async_execution=True,
         )
     
 
 
-    def save_task_output(self, output, filename):
-         with open(filename, 'w') as file:
-            json.dump(output, file)

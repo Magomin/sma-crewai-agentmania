@@ -1,8 +1,10 @@
 import os
 from textwrap import dedent
 from crewai import Agent
-from crewai_tools import JSONSearchTool
 from tools_llm.cv_tool import CvPdfParserTool
+from tools_llm.json_tool import JsonParserTool
+from crewai_tools import JSONSearchTool
+from crewai_tools import FileReadTool
 from langchain_anthropic import ChatAnthropic
 from langchain_openai import ChatOpenAI
 from dotenv import load_dotenv, find_dotenv
@@ -45,16 +47,19 @@ llama_3_8b = ChatOpenAI(
     api_key="NA"
         )
         
-
-json_search_tool = JSONSearchTool()
+jsontool = JSONSearchTool()
+filereadtool = FileReadTool()
 
 class InformationRetrieverAgents:
+
     def __init__(self):
         self.local_llm = ChatOpenAI(
         model="crewai-llama3-8b",
         base_url="http://localhost:11434/v1",
         api_key="NA"
         )
+        
+
         
         
     def cv_info_retriever_agent(self,cv):
@@ -77,10 +82,11 @@ class InformationRetrieverAgents:
     
 
     def linkedin_info_retriever_agent(self,json):
-
+        
+        
         return Agent(
             name="Linkedin information retriever",
-            role=f"Retrieve infomation from {json}",
+            role=f"Retrieve infomation from {json} using your jsonreader tool",
             goal="Your goal is to retrieve important information of a linkedin profile that is stored as a json",
             backstory="""Your the most experienced json analyst, you have lot of
             expertise analysing linkedin profile and getting information out of them especially if
@@ -88,14 +94,15 @@ class InformationRetrieverAgents:
             verbose=True,
             memory=True,
             tool=[
-                json_search_tool    
+                JsonParserTool.myjsontool,
+          
             ],
             allow_delegation=False,
             llm=chatgpt4
         )
 
 class InformationAnalystAgents:
-    
+   
     def cv_information_analyst_agent(self):
         return Agent(
             name="CV Information Analyst Agent", 
