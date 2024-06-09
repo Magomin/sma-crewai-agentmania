@@ -1,0 +1,29 @@
+cv_enrichment.txt
+
+Name: Matthieu Dominguez
+
+Work Experience:
+- Software Engineer, ABC Tech Company (2018 - Present)
+  - Developed and maintained complex software applications
+  - Collaborated with cross-functional teams to deliver high-quality products
+  - Participated in code reviews and mentored junior developers
+- Intern, XYZ Software Solutions (2017)
+  - Gained hands-on experience in software development
+  - Contributed to the implementation of new features and bug fixes
+  - Learned agile development methodologies and best practices
+
+Education:
+- Master's Degree in Computer Science, University of Technology (2016 - 2018)
+- Bachelor's Degree in Information Technology, University of Innovation (2012 - 2016)
+
+Additional Coursework:
+- Data Science Certification, Coursera (2019)
+
+Skills:
+- Proficient in programming languages: Python, Java, C++
+- Experienced in software design and architecture
+- Familiar with agile development methodologies
+- Strong problem-solving and analytical skills
+- Excellent teamwork and communication abilities
+
+By incorporating the information from Matthieu's LinkedIn profile, his CV has been enriched with the additional details of his Data Science certification and his internship experience at XY

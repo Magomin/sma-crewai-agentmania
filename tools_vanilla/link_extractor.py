@@ -2,6 +2,16 @@ import os
 import fitz
 
 
+
+"""
+Tools_vanilla folder contains script that i find better to use without LLMs, as they are prone to error, 
+and the tools work well on their own
+
+link_extractor is to verify and extract the linkedin link on the cv, 
+linkedin_scraper is to extract data from the linkedin profiles
+
+"""
+
 def extract_linkedin_links_from_pdf(file_path: str):
     """
     Extract the LinkedIn URLs stored inside the PDF.

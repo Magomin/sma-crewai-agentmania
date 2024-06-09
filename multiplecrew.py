@@ -2,8 +2,8 @@ import os
 from crewai import Crew,Process
 from textwrap import dedent
 from langchain_anthropic import ChatAnthropic
-from agents import InformationAnalystAgents,InformationRetrieverAgents
-from tasks import CvTasks,LinkedinTasks,EnrichementTasks,ComparaisonTasks
+from agents import CvCrewAgents,LinkedinCrewAgents
+from tasks import CvCrewTasks,LinkedinCrewTasks
 from dotenv import load_dotenv, find_dotenv
 from langchain_openai import ChatOpenAI
 from langchain_community.chat_models import BedrockChat
@@ -43,7 +43,25 @@ llama_3_8b = ChatOpenAI(
     base_url="http://localhost:11434/v1",
     api_key="NA"
         )
+
         
+"""
+Okay so here is were we compose our crew,
+This is where we assign the agents to the tasks we want them to perform on
+
+in the crews parameter, you can specify the process, verbose, and manager_llm
+process can be sequential or hierarchical
+i haven't managed to make the hierarchical work,
+so just use sequential
+
+
+"""
+
+
+
+
+
+
 
 class CvCrew:
     def __init__(self,cv):
@@ -51,39 +69,33 @@ class CvCrew:
 
     def run(self):
 
-        agents = (InformationRetrieverAgents(),InformationAnalystAgents())
-        tasks = (CvTasks())
+        agents = CvCrewAgents()
+        tasks = CvCrewTasks()
 
+ 
 
-
-        """
-        
-        Agents
-        """
         #information retriever agents
-        cv_info_retriever_agent = agents[0].cv_info_retriever_agent(self.cv)
-        cv_information_analyst_agent=agents[1].cv_information_analyst_agent()
+        cv_analyzer_agent = agents.cv_analyzer_agent(self.cv)
+        cv_verifier_agent = agents.cv_verifier_agent(self.cv)
 
-        """
-        Tasks
-        """
 
         #CV Tasks
-        get_cvprofile_task=tasks.get_cvprofile_task(cv_info_retriever_agent,self.cv)
-        comment_cv_task=tasks.comment_cv_task(cv_information_analyst_agent,[get_cvprofile_task])
+        cv_analysis_task=tasks.cv_analysis_task(self.cv,cv_analyzer_agent)
+        cv_verification_task=tasks.cv_verification_task(self.cv,cv_verifier_agent)
 
         #CvCrew
         cv_crew = Crew(
             agents=[
 
-               cv_info_retriever_agent,
-               cv_information_analyst_agent,
+               cv_analyzer_agent,
+               cv_verifier_agent
+           
          
             ],
             tasks=[
 
-                get_cvprofile_task,
-                comment_cv_task,
+                cv_analysis_task,
+                cv_verification_task
 
             ],
             verbose=True,
@@ -95,24 +107,55 @@ class CvCrew:
         return result_cv_crew
 
 class LinkedinCrew:
-    def __init__(self,linkdedinpydantic):
-        self.linkedinpydantic = linkdedinpydantic
+    def __init__(self,name,linkedin_experience,linkedin_skills, linkedin_education,
+                 linkedin_certifications,linkedin_languages,
+                 linkedin_recommendations,linkedin_courses,
+                 linkedin_organizations,linkedin_volunteering,linkedin_activity,linkedin_comments,commented_cv_path):
+        
+        self.name = name
+        self.linkedin_experience = linkedin_experience
+        self.linkedin_skills = linkedin_skills
+        self.linkedin_education = linkedin_education
+        self.linkedin_certifications =  linkedin_certifications
+        self.linkedin_languages = linkedin_languages
+        self.linkedin_recommendations = linkedin_recommendations
+        self.linkedin_courses = linkedin_courses
+        self.linkedin_organizations = linkedin_organizations
+        self.linkedin_volunteering = linkedin_volunteering
+        self.linkedin_activity = linkedin_activity
+        self.linkedin_comments = linkedin_comments
+        self.commented_cv_path = commented_cv_path
         
     def run(self):
 
         
 
-        agents = (InformationRetrieverAgents(),InformationAnalystAgents())
-        tasks =  (LinkedinTasks())
+        agents = LinkedinCrewAgents()
+        tasks =  LinkedinCrewTasks()
 
         """
         Agents
         """
-        #information retriever agents
-        linkedin_info_retriever_agent=agents[0].linkedin_info_retriever_agent(self.linkedinpydantic)
+        #linkedin Analyst agents
+        linkedin_experience_analyzer_agent=agents.linkedin_experience_analyzer_agent(self.linkedin_experience)
+        linkedin_skills_analyzer_agent=agents.linkedin_skills_analyzer_agent(self.linkedin_activity)
+        linkedin_education_analyzer_agent=agents.linkedin_education_analyzer_agent(self.linkedin_education)
+        linkedin_languages_analyzer_agent=agents.linkedin_languages_analyzer_agent(self.linkedin_languages)
+        linkedin_recommendations_analyzer_agent=agents.linkedin_recommendations_analyzer_agent(self.linkedin_recommendations)
+        linkedin_courses_analyzer_agent=agents.linkedin_courses_analyzer_agent(self.linkedin_courses)
+        linkedin_organizations_analyzer_agent=agents.linkedin_organizations_analyzer_agent(self.linkedin_organizations)
+        linkedin_volunteering_analyzer_agent=agents.linkedin_volunteering_analyzer_agent(self.linkedin_volunteering)
+        linkedin_activity_analyzer_agent=agents.linkedin_activity_analyzer_agent(self.linkedin_activity)
+        linkedin_comments_analyzer_agent=agents.linkedin_comments_analyzer_agent(self.linkedin_comments)
+        linkedin_certification_analyzer_agent=agents.linkedin_certification_analyzer_agent(self.linkedin_certifications)
 
-        #Information analyst agents
-        linkedin_information_analyst_agent=agents[1].linkedin_information_analyst_agent()
+        #Linkedin_summary_agent
+        sumarizer_agent=agents.sumarizer_agent()
+        
+        #Enrichement_verifier_agent
+        enrichment_verifier_agent=agents.enrichment_verifier_agent()
+
+        
 
        
 
@@ -122,14 +165,30 @@ class LinkedinCrew:
 
 
         #Linkedin Tasks
-        get_linkedin_profile_task=tasks.get_linkedin_profile_task(linkedin_info_retriever_agent,self.linkedinpydantic)
-        comment_linkedin_profile_task=tasks.comment_linkedin_profile_task(linkedin_information_analyst_agent,[get_linkedin_profile_task])
 
-        
+        #Analysis
+        linkedin_experience_analysis_task=tasks.linkedin_experience_analysis_task(linkedin_experience_analyzer_agent,self.linkedin_experience,self.commented_cv_path,self.name)
+        linkedin_skills_analysis_task=tasks.linkedin_skills_analysis_task(linkedin_skills_analyzer_agent,self.linkedin_skills,self.commented_cv_path,self.name)
+        linkedin_education_analysis_task=tasks.linkedin_education_analysis_task(linkedin_education_analyzer_agent,self.linkedin_education,self.commented_cv_path,self.name)
+        linkedin_certification_analysis_task=tasks.linkedin_certification_analysis_task(linkedin_certification_analyzer_agent,self.linkedin_certifications,self.commented_cv_path,self.name)
+        linkedin_languages_analysis_task=tasks.linkedin_languages_analysis_task(linkedin_languages_analyzer_agent,self.linkedin_languages,self.commented_cv_path,self.name)
+        linkedin_recommendations_analysis_task=tasks.linkedin_recommendations_analysis_task(linkedin_recommendations_analyzer_agent,self.linkedin_recommendations,self.commented_cv_path,self.name)
+        linkedin_courses_analysis_task=tasks.linkedin_courses_analysis_task(linkedin_courses_analyzer_agent,self.linkedin_courses,self.commented_cv_path,self.name)
+        linkedin_organizations_analysis_task=tasks.linkedin_organization_analysis_task(linkedin_organizations_analyzer_agent,self.linkedin_organizations,self.commented_cv_path,self.name)
+        linkedin_volunteering_analysis_task=tasks.linkedin_volunteering_analysis_task(linkedin_volunteering_analyzer_agent,self.linkedin_volunteering,self.commented_cv_path,self.name)
+        linkedin_activity_analysis_task=tasks.linkedin_activity_analysis_task(linkedin_activity_analyzer_agent,self.linkedin_activity,self.commented_cv_path,self.name)
+        linkedin_comments_analysis_task=tasks.linkedin_comments_analysis_task(linkedin_comments_analyzer_agent,self.linkedin_comments,self.commented_cv_path,self.name)
 
 
-        
 
+        #commenting
+        linkedin_summary_task=tasks.linkedin_summary_task(sumarizer_agent,self.name,self.commented_cv_path)  
+        cv_enrichement_task=tasks.cv_enrichment_task(sumarizer_agent)                            
+        enrichment_verification_task=tasks.enrichment_verification_task(enrichment_verifier_agent,self.commented_cv_path,self.name)
+
+
+
+    
 
 
 
@@ -138,14 +197,41 @@ class LinkedinCrew:
             agents=[
 
 
-               linkedin_info_retriever_agent,
-               linkedin_information_analyst_agent,
+                linkedin_experience_analyzer_agent,
+                linkedin_skills_analyzer_agent,
+                linkedin_education_analyzer_agent,
+                linkedin_languages_analyzer_agent,
+                linkedin_recommendations_analyzer_agent,
+                linkedin_courses_analyzer_agent,
+                linkedin_organizations_analyzer_agent,
+                linkedin_volunteering_analyzer_agent,
+                linkedin_activity_analyzer_agent,
+                linkedin_comments_analyzer_agent,
+                linkedin_certification_analyzer_agent,
+
+                sumarizer_agent,
+                enrichment_verifier_agent
+               
 
                 
             ],
             tasks=[
-                get_linkedin_profile_task,
-                comment_linkedin_profile_task,
+           linkedin_experience_analysis_task,
+           linkedin_skills_analysis_task,
+           linkedin_education_analysis_task,
+           linkedin_certification_analysis_task,
+           linkedin_languages_analysis_task,
+           linkedin_recommendations_analysis_task,
+           linkedin_courses_analysis_task,
+           linkedin_organizations_analysis_task,
+           linkedin_volunteering_analysis_task,
+           linkedin_activity_analysis_task,
+           linkedin_comments_analysis_task,
+
+           linkedin_summary_task,
+           enrichment_verification_task,
+           cv_enrichement_task,
+           
          
             ],
             verbose=True,

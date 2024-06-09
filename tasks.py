@@ -1,333 +1,654 @@
 from crewai import Task
-from pydantic_models import CVProfile,CommentedCV,LinkedinProfile,CommentedLinkedin,Comparaison,CVEnrichement,SocialMediaAnalysis
 from textwrap import dedent
-import json
 
-class CvTasks:
+
+
+
+
+
+"""
+Hey are you following me?
+-------------------------
+
+Okay here we define the tasks that the cvcrew and linkedincrew will perform.
+you can only assign one agent per task
+
+the task need a description, an expected output, an agent
+
+you can also specify if the task is async or not
+async can give you a lot of errors so be careful with that
+
+you can create an output file to store the output, it will output it in the directory
+i haven't find a way to specify the path of the output file, maybe by asking it in the task it self?
+
+you can see that i put a tip section,"if you do your BEST WORK, you will get a $10 000 commission!"
+
+apparently, it helps get better results it's complicated to verify but if it helps even a little it will be worth it.
+
+
+
+"""
+
+class CvCrewTasks:
 
     def __tip_section(self):
         return "if you do your BEST WORK, I'll give you a $10 000 commission!"
 
-    def get_cvprofile_task(self, agent, cv):
+    
+    def cv_analysis_task(self, cv, agent):
         return Task(
-            description=dedent(
-            f"""
-        **Task**: extract the text of {cv}, and provide clasify the education, experience, skills, languages in a pydanticfile called {CVProfile}
-
-        **Description**: get the text that is stored inside the{cv}, then clasify the different section of the {cv} education, experience, skills and languages in the 
-        {CVProfile}
-        
-        
-        **Parameters**:
-        - Cv: {cv}
-        - pydanticfile: {CVProfile}
-
-        **Note**:{self.__tip_section()}
-    """
-
-        ),
-        expected_output=(
-            f"""
-        The {cv} text extracted and formatted into the {CVProfile} format. The Pydantic model should look something like this:
-
-        Example:
-
-        [
-                        "name": "Sample Name",
-                        "cv_experience": "Sample experience description.",
-                        "cv_skills": "Sample skills description.",
-                        "cv_education": "Sample education details.",
-                        "cv_languages": "Sample languages description."
-            
-        ]
-
-        
-        """
-        ),
-        
-        agent=agent,
-        async_exectution=True
-        
-
-        )
-    def comment_cv_task(self, agent, context):
-        return Task(
-
             description=dedent(
                 f"""
-                **Task**: Comment on the fields of the {CVProfile} outputted by the previous task {context} and output your comments in a new Pydantic model called {CommentedCV}.
+                **Task**: extract the text of {cv}, and analyze the experience, education, skills, and languages.
 
-                **Description**: Your comments must be observations of the experience, education, skills, and languages found in the {CVProfile}. Analyze the details and provide insightful feedback or notes that would be useful from an HR specialist's perspective.
+                **Description**: Get the text that is stored inside the CV, then analyze the sections of the {cv} including experience, education, skills, and languages.
 
                 **Parameters**:
-                - CVProfile: {CVProfile}
-                - CommentedCV: {CommentedCV}
+                - Cv: {cv}
 
                 **Note**: {self.__tip_section()}
                 """
             ),
-            expected_output=(
+            expected_output=dedent(
                 f"""
-                The Pydantic object {CommentedCV} should look like this:
+                The {cv} text extracted and analyzed.
 
-                Example:
-
-
-                CommentedCV:
-                [
-                    
-                    "name": "Sample Name",
-                    "cv_experience": "Sample experience description.",
-                    "commented_cv_experience": "Sample commented experience.",
-                    "cv_skills": "Sample skills description.",
-                    "commented_cv_skills": "Sample commented skills.",
-                    "cv_education": "Sample education details.",
-                    "commented_cv_education": "Sample commented education.",
-                    "cv_languages": "Sample languages description.",
-                    "commented_cv_languages": "Sample commented languages."
-                    
-                ]
                 """
             ),
             agent=agent,
-            context=context,
-            async_exectution=True,
-    )
+            async_execution=False,
+        )
     
-class LinkedinTasks:
+
+    def cv_verification_task(self, cv, agent):
+        return Task(
+            description=dedent(
+               f"""
+                **Task**:verify that the text of {cv} was correclty extracted and commented by the previous task,
+                correct mistake, and improve the overall quality of the previous task
+
+                **Description**: verify and correct the previous task, check if the information of the was completely extracted
+                and improve the comments made
+
+                **Parameters**:
+                - Cv: {cv}
+
+                **Note**:{self.__tip_section()}
+                """
+            ),
+            expected_output=dedent(
+                f"""
+                Your expected to improve the previous task output,
+              
+
+                """
+            ),
+            output_file="commented_cv.txt",
+            agent=agent,
+            async_execution=False,
+
+        )
+    
+
+ 
+    
+class LinkedinCrewTasks:
 
     def __tip_section(self):
         return "if you do your BEST WORK, I'll give you a $10 000 commission!"
 
 
-    def get_linkedin_profile_task(self, agent, linkdedinpydantic):
-        return Task(
-            description=dedent(
-                f"""
-                **Task**:  {linkdedinpydantic} parsed it into a Pydantic model called {LinkedinProfile}.
-
-                **Description**: Retrieve {linkdedinpydantic} representing a LinkedIn profile and map the relevant fields to the {LinkedinProfile} Pydantic model. Ensure that the extracted information is accurately reflected in the corresponding fields of the model.
-
-                **Parameters**:
-                - linkdedinpydantic: {linkdedinpydantic}
-                - LinkedinProfile: {LinkedinProfile}
-
-                **Note**: {self.__tip_section()}
-                """
-            ),
-            expected_output=(
-                f"""
-                The Pydantic object {LinkedinProfile} should look like this:
-
-                    Example:
-
-                    LinkedinProfile:
-                    [
-                        
-                        "name": "Sample Name",
-                       
-                        "linkedin_experience": "Sample LinkedIn experience.",
-                        "linkedin_education": "Sample LinkedIn education details.",
-                        "linkedin_skills": "Sample LinkedIn skills.",
-                        "linkedin_languages": "Sample LinkedIn languages.",
-                        "linkedin_recommendations": "Sample LinkedIn recommendations.",
-                        "linkedin_certifications": "Sample LinkedIn certifications.",
-                        "linkedin_volunteering": "Sample LinkedIn volunteering details.",
-                        "linkedin_course": "Sample LinkedIn course details.",
-                        "linkedin_activity": "Sample LinkedIn activity.",
-                        "linkedin_comments": "Sample LinkedIn comments."
-                        
-                    ]
-                    """
-                ),
-                agent=agent,
-                async_exectution=True
-                
-            )
-
-    def comment_linkedin_profile_task(self, agent,context):
-            
+    def linkedin_experience_analysis_task(self, agent, linkedin_experience,commented_cv_path,name):
             return Task(
                 description=dedent(
                     f"""
-                    **Task**: Comment on the fields of the {LinkedinProfile} created in the previous task ({context}) and output your comments in a new Pydantic model called {CommentedLinkedin}.
+                    **Task**: compare {linkedin_experience},  with the experience of the {commented_cv_path}, note the differences.
 
-                    **Description**: Analyze the details from the {LinkedinProfile} and provide insightful feedback or notes for each section. Your comments should reflect observations that would be useful from an HR specialist's perspective.
+                    **Description**: provide an comment, on the professional experience of this LinkedIn profile.
+                    Ensure that the comment reflects the professional background and career progression of the profile.
 
+                    
                     **Parameters**:
-                    - linkedin_profile: {LinkedinProfile}
-                    - CommentedLinkedin: {CommentedLinkedin}
+                    -CV: {commented_cv_path}
+                    -name: {name} 
 
                     **Note**: {self.__tip_section()}
                     """
                 ),
                 expected_output=(
                     f"""
-                    the expected output is the pydantic object fullfield, 
-                    The Pydantic object {CommentedLinkedin} should look like this:
+                    Your expected task output is a paragraph that compare the experience section  of the LinkedIn profile. with  {commented_cv_path}
 
                     Example:
+                        [
+                        the experience of {name} present on linkedin showcase interesting experience that where not present on the cv such as an internship in Xyz which 
+                        could enrich the cv by demonstrating knowledge in areas that he saw during that internship
+
+                        ]
+                        or
+                        [
+                            The experience present on {name}'s linkedin is the same as the cv, nothing to enrich here
+                        ]
 
 
-                    CommentedLinkedin:
-                    [
-                        
-                        "name": "Sample Name",
-                        "linkedin_experience": "Sample LinkedIn experience.",
-                        "commented_linkedin_experience": "Sample commented LinkedIn experience.",
-                        "linkedin_education": "Sample LinkedIn education details.",
-                        "commented_linkedin_education": "Sample commented LinkedIn education details.",
-                        "linkedin_skills": "Sample LinkedIn skills.",
-                        "commented_linkedin_skills": "Sample commented LinkedIn skills.",
-                        "linkedin_languages": "Sample LinkedIn languages.",
-                        "commented_linkedin_languages": "Sample commented LinkedIn languages.",
-                        "linkedin_recommendations": "Sample LinkedIn recommendations.",
-                        "commented_linkedin_recommendations": "Sample commented LinkedIn recommendations.",
-                        "linkedin_certifications": "Sample LinkedIn certifications.",
-                        "commented_linkedin_certifications": "Sample commented LinkedIn certifications.",
-                        "linkedin_volunteering": "Sample LinkedIn volunteering details.",
-                        "commented_linkedin_volunteering": "Sample commented LinkedIn volunteering details.",
-                        "linkedin_course": "Sample LinkedIn course details.",
-                        "commented_linkedin_course": "Sample commented LinkedIn course details.",
-                        "linkedin_activity": "Sample LinkedIn activity.",
-                        "commented_linkedin_activity": "Sample commented LinkedIn activity.",
-                        "linkedin_comments": "Sample LinkedIn comments.",
-                        "commented_linkedin_comments": "Sample commented LinkedIn comments."
-                        
-                    ]
+
+                    the examples above are just  examples, be sure to replace it with the actual info 
+
                     """
                 ),
                 agent=agent,
-                context=context,
-                async_execution=True
-
+                async_execution=True,
             )
 
 
 
-class ComparaisonTasks:
 
-    def __tip_section(self):
-        return "if you do your BEST WORK, I'll give you a $10 000 commission!"
 
-    def compare_cv_linkedin_comments_task(self, agent, context):
+
+ 
+    def linkedin_education_analysis_task(self, agent,linkedin_education,commented_cv_path,name):
+         
+
+            return Task(
+                  description=dedent(
+            
+                         f"""
+                    **Task**: compare {linkedin_education},  with the education of the {commented_cv_path}, note the differences.
+
+                    **Description**: comment the education of this LinkedIn profile.
+                    
+
+                    
+                    **Parameters**:
+                    -CV: {commented_cv_path}
+                    -name:{name} 
+
+                    **Note**: {self.__tip_section()}
+                    """
+                ),
+                expected_output=(
+                    f"""
+                    Your expected task output is a paragraph that compare the education  section of the LinkedIn profile. with  {commented_cv_path}
+
+                        Example
+                        [
+                        the education of {name} present on linkedin showcase interesting education that where not present on the cv such as a degree in Xyz which 
+                        could enrich the cv
+
+                        ]
+
+                        or
+
+                        [
+                        The education present on {name} linkedin is the same as the cv, nothing to enrich here
+
+                        ]
+
+                    the examples above are just  examples, be sure to replace it with the actual info 
+                    
+                    """
+                ),
+                agent=agent,
+                async_execution=True,
+            )
+            
+
+    def linkedin_skills_analysis_task(self, agent, linkedin_skills,commented_cv_path,name):
+        return Task(
+            description=dedent(
+                          f"""
+                    **Task**: compare {linkedin_skills},  with the skills of the {commented_cv_path}, note the differences.
+
+                    **Description**: comment the skills of this LinkedIn profile.
+                    
+
+                    
+                    **Parameters**:
+                    -name:{name}
+                    -CV: {commented_cv_path} 
+
+                    **Note**: {self.__tip_section()}
+                    """
+                ),
+                expected_output=(
+                    f"""
+                    Your expected task output is a paragraph that compare the skills section of the LinkedIn profile. with  {commented_cv_path}
+
+                    Example:
+                        [
+                        the skills of {name} present on linkedin showcase interesting skills that where not present on the cv such as 
+                        skills in () which could enrich the cv
+                        ]
+
+                            or
+                        [
+                        The skills present on linkedin is the same sas the cv, nothing to enrich here
+                        ]
+
+                    the examples above are just  examples, be sure to replace it with the actual info 
+
+                    """
+                ),
+                agent=agent,
+                async_execution=True,
+        )
+
+
+    def linkedin_languages_analysis_task(self, agent, linkedin_languages, commented_cv_path,name):
+         return Task(
+            description=dedent(
+                          f"""
+                    **Task**: compare {linkedin_languages},  with the languages of the {commented_cv_path}, note the differences.
+
+                    **Description**: comment the languages of this LinkedIn profile.
+                    
+
+                    
+                    **Parameters**:
+                    -name:{name}
+                    -CV: {commented_cv_path} 
+
+                    **Note**: {self.__tip_section()}
+
+                    """
+                ),
+                expected_output=(
+                    f"""
+                    Your expected task output is a paragraph that compare the experience section of the LinkedIn profile. with  {commented_cv_path}
+
+                    Example:
+                        [
+                        {name} linkedin comfirms that he speak the same languages as on its cv
+                        ]
+
+                            or
+                        [
+                        he did not add is language -> leave blank
+                        ]
+
+                    the examples above are just  examples, be sure to replace it
+
+                    """
+                ),
+                agent=agent,
+                async_execution=True,
+
+        )
+    
+    def linkedin_certification_analysis_task(self, agent, linkedin_certification,commented_cv_path,name):
         return Task(
             description=dedent(
                 f"""
-                **Task**: Compare the comments from the {CommentedCV} and {CommentedLinkedin} profiles from the previous tasks ({context}) and output the comparison in a new Pydantic model called {Comparaison}.
+               **Task**: comment the {linkedin_certification}, and see how they can value to the {commented_cv_path}
 
-                **Description**: Analyze and compare the comments on the experience, education, skills, and languages from both the CV and LinkedIn profiles. Provide a detailed comparison highlighting similarities, differences, and any notable observations.
-
+              
+                    
                 **Parameters**:
-                - commented_cv: {CommentedCV}
-                - commented_linkedin: {CommentedLinkedin}
-                - comparaison: {Comparaison}
+                -CV: {commented_cv_path} 
+                -Name:{name}
+
 
                 **Note**: {self.__tip_section()}
                 """
             ),
             expected_output=(
                 f"""
-                The Pydantic object {Comparaison} should look like this:
+                Your expected task output is a paragraph that comment the certifications section of the LinkedIn profile. And see how they can value to the {commented_cv_path}
 
                 Example:
 
+                    [
+                    {name} certifications on linkedin confirms his expertise in the domains mentioned in {commented_cv_path}
+                    ]
+                    or
+                    [
+                    {name} doesn't have any certification on his linkedin ->leave blank
+                    ]
 
-                Comparaison:
-                [
-                    
-                        "experience_compared": "Sample comparison of experience between CV and LinkedIn profiles.",
-                        "education_compared": "Sample comparison of education between CV and LinkedIn profiles.",
-                        "skills_compared": "Sample comparison of skills between CV and LinkedIn profiles.",
-                        "languages_compared": "Sample comparison of languages between CV and LinkedIn profiles."
-                    
-                ]
+                the examples above are just  examples, be sure to replace it with the actual info 
+
                 """
             ),
             agent=agent,
-            context=context,
             async_execution=True
-
         )
+    
 
-
-    def social_media_analysis_task(self, agent, context):
+    def linkedin_recommendations_analysis_task(self, agent, linkedin_recommendations, commented_cv_path,name):
         return Task(
             description=dedent(
                 f"""
-                **Task**: Analyze the LinkedIn profile for additional information and online behavior, then output the analysis in a new Pydantic model called {SocialMediaAnalysis}.
+               **Task**: comment the {linkedin_recommendations}, and see how they can value to the {commented_cv_path}
 
-                **Description**: Extract and analyze extra information from the LinkedIn profile, such as recommendations, certifications, volunteering, and courses.
-                Additionally, provide an analysis of the LinkedIn user's online behavior, including their activities and comments. Summarize this information in the {SocialMediaAnalysis} Pydantic model.
-
+              
+                    
                 **Parameters**:
-                - comparaison: {Comparaison}
+                -CV: {commented_cv_path} 
+                -name{name}
+
 
                 **Note**: {self.__tip_section()}
                 """
             ),
             expected_output=(
                 f"""
-                The Pydantic object {SocialMediaAnalysis} should look like this:
+                Your expected task output is a paragraph that comment the recommendations section of the LinkedIn profile. And see how they can value to the {commented_cv_path}
 
                 Example:
 
+                    [
+                     {name} got recommended in linkedin for his capacities in xyz, which confirms his expertise in the domains mentioned in {commented_cv_path}
+                    ]
 
+                    or
 
-                SocialMediaAnalysis:
-                [
-                    
-                    "extra": "Sample extra information from LinkedIn profile.",
-                    "behaviour": "Sample analysis of online behavior."
-                    
-                ]
+                    [
+                    {name} doesn't have any recommentation on his linkedin -> leave blank
+                    ]
+
+                the examples above are just  examples, be sure to replace it with the actual info 
+
                 """
             ),
             agent=agent,
-            context=context
+            async_execution=True
         )
+    
+
+
+    def linkedin_courses_analysis_task(self, agent, linkedin_courses,commented_cv_path,name):
+              
+            return Task(
+            description=dedent(
+                f"""
+               **Task**: comment the {linkedin_courses}, and see how they can value to the {commented_cv_path}
+
+              
+                    
+                **Parameters**:
+                -CV: {commented_cv_path} 
+                -name{name}
+
+
+                **Note**: {self.__tip_section()}
+                """
+            ),
+            expected_output=(
+                f"""
+                Your expected task output is a paragraph that comment the courses section of the LinkedIn profile. And see how they can value to the {commented_cv_path}
+
+                Example:
+
+                    [
+                     {name}'s linkedin  show that he took courses in xyz, which confirms his expertise in the domains mentioned in {commented_cv_path}
+                    ]
+
+                    or
+
+                    [
+                    {name} doesn't have any course on his linkedin -> leave blank
+                    ]
+
+                the examples above are just  examples, be sure to replace it with the actual info 
+
+                """
+            ),
+            agent=agent,
+            async_execution=True
+        )
+    
 
 
 
+    def linkedin_organization_analysis_task(self, agent, linkedin_organisation,commented_cv_path,name):
+            return Task(
+            description=dedent(
+                f"""
+               **Task**: comment the {linkedin_organisation}, and see how they can value to the {commented_cv_path}
 
-class EnrichementTasks:
+              
+                    
+                **Parameters**:
+                -CV: {commented_cv_path} 
+                -name{name}
 
-    def __tip_section(self):
-        return "if you do your BEST WORK, I'll give you a $10 000 commission!"
 
-    def enrichement_task(self,agent,context):
+                **Note**: {self.__tip_section()}
+                """
+            ),
+            expected_output=(
+                f"""
+                Your expected task output is a paragraph that comment the organization section of the LinkedIn profile. And see how they can value to the {commented_cv_path}
+
+                Example:
+
+                    [
+                     {name}'s linkedin  show that he was/is part of organisation, xyz, which confirms his expertise in the domains mentioned in {commented_cv_path}
+                    ]
+
+                    or
+
+                    [
+                    {name} doesn't have any course on his linkedin -> leave blank
+                    ]
+
+                the examples above are just  examples, be sure to replace it with the actual info 
+
+                """
+            ),
+            agent=agent,
+            async_execution=True
+        )
+    
+
+    def linkedin_volunteering_analysis_task(self, agent, linkedin_volunteering,commented_cv_path,name): 
+            return Task(
+            description=dedent(
+                f"""
+               **Task**: comment the {linkedin_volunteering}, and see how they can value to the {commented_cv_path}
+
+              
+                    
+                **Parameters**:
+                -CV: {commented_cv_path} 
+                -name{name}
+
+
+                **Note**: {self.__tip_section()}
+                """
+            ),
+            expected_output=(
+                f"""
+                Your expected task output is a paragraph that comment the volunteering section of the LinkedIn profile. And see how they can value to the {commented_cv_path}
+
+                Example:
+
+                    [
+                     {name}'s linkedin  show that he was a volunteer in xyz, which confirms his expertise in the domains mentioned in {commented_cv_path}
+                    ]
+
+                    or
+
+                    [
+                    {name} doesn't have any volunteering section on his linkedin -> leave blank
+                    ]
+
+                the examples above are just  examples, be sure to replace it with the actual info 
+
+                """
+            ),
+            agent=agent,
+            async_execution=True
+        )
+    
+ 
+    def linkedin_activity_analysis_task(self, agent, linkedin_activity,commented_cv_path,name):
+            return Task(
+            description=dedent(
+                f"""
+               **Task**: comment the {linkedin_activity}, and see how they can value to the {commented_cv_path}
+
+                  
+                **Parameters**:
+                -CV: {commented_cv_path} 
+                -name{name}
+
+
+                **Note**: {self.__tip_section()}
+                """
+            ),
+            expected_output=(
+                f"""
+                Your expected task output is a paragraph that comment the activity section of the LinkedIn profile. And see how they can value to the {commented_cv_path}
+
+                Example:
+
+                    [
+                     {name}'s linkedin activity show that he he is sharing article that are related with his area of expertise mentioned in {commented_cv_path}
+                    ]
+
+                    or
+
+                    [
+                    {name} activity is empty on his linkedin -> leave blank
+                    ]
+
+                the examples above are just  examples, be sure to replace it with the actual info 
+
+                """
+            ),
+            agent=agent,
+            async_execution=True
+        )
+    
+    def linkedin_comments_analysis_task(self, agent, linkedin_comments,commented_cv_path,name):          
+           return Task(
+           description=dedent(
+                f"""
+               **Task**: comment the {linkedin_comments}, and see how they can value to the {commented_cv_path}
+
+              
+                    
+                **Parameters**:
+                -CV: {commented_cv_path} 
+                -name{name}
+
+
+                **Note**: {self.__tip_section()}
+                """
+            ),
+            expected_output=(
+                f"""
+                Your expected task output is a paragraph that comment the comment section of the LinkedIn profile. And see how they can value to the {commented_cv_path}
+
+                Example:
+
+                    [
+                     {name}'s linkedin  show that he commented on xyz post, his comment where consise, clear, enthousiast, showing his caracter
+                    ]
+
+                    or
+
+                    [
+                    {name} didn't post any comment -> leave blank
+                    ]
+
+                the examples above are just  examples, be sure to replace it with the actual info 
+
+                """
+            ),
+            agent=agent,
+            async_execution=True
+        )
+    
+    def linkedin_summary_task(self, agent,name,cv_commented_path):   
         return Task(
             description=dedent(
-                  f"""
-            **Task**: Summarize how the information extracted from LinkedIn confirms the information in the CV, and add insights on online behavior. Output this summary in a new Pydantic model called {CVEnrichement}.
+                f"""
+                **Task**: summarize the comments made in the previous task of the different parts of the LinkedIn profile of {name} into one paragraph
 
-            **Description**: Using the data from the previous tasks ({context}), create a summary that highlights how the LinkedIn profile information supports and confirms the details in the CV. Include insights on the individual's online behavior, such as their activities, comments, and overall engagement. The summary should provide a comprehensive overview of the individual's qualifications, experience, skills, education, and online presence.
+                **Description**: Your goal is to summarize the analysis of the different parts of the LinkedIn profile that were made in the previous tasks.
+
+                **Parameters**: 
+                - Name:{name}
+                - Cv: {cv_commented_path}
+
+                **Note**: {self.__tip_section()}
+                """
+            ),
+            expected_output=(
+                f"""
+                Your expected task output is a paragraph that summarizes the comments made in the previous tasks of the different parts of the LinkedIn profile. and see how it can enrich {cv_commented_path}
+
+                Example:
+
+                    [
+                    {name}'s linkedin confirms overall information provided in the cv, at the same time thanks we can add that he took extra course in xyz, and had internship that wasn't mentioned in the cv
+                    which is valuable extra info as it confirms his expertise in this area
+                    ]
+
+                the examples above are just  examples, be sure to replace it with the actual info 
+
+                """
+            ),
+            agent=agent,           
+            async_execution=False
+        )
+    
+
+    def enrichment_verification_task(self,agent,cv_commented_path,name):
+        return Task(
+        description=dedent(
+             f"""
+            **Task**: verify that the information of the previous task is correct and that he hasn't made errors or invented part of his summary, 
+            then provide a corrected, improved summary 
+
+            **Description**: Your goal is to correct and improve the output of the previous one to provide a better one 
+
 
             **Parameters**:
-            - CVEnrichement: {CVEnrichement}
+            -Name:{name}
+            -Cv: {cv_commented_path}
 
+            **Note**: {self.__tip_section()}, 
+             """
+        ),
+        expected_output=(
+             f"""
+            Your expected task output is a paragraph that is an improved version of the previous task, the info is the correct one, and the phrasing is better
+
+            [
+            {name}'s linkedin confirms overall information provided in the cv, at the same time thanks we can add that he took extra course in xyz, and had internship that wasn't mentioned in the cv
+            which is valuable extra info as it confirms his expertise in this area
+
+            ]
+
+
+            the examples above are just  examples, be sure to replace it with the actual info 
+            """
+        ),
+        agent=agent,
+        async_execution=False
+
+        )
+
+    
+    def cv_enrichment_task(self, agent):
+        return Task(
+        description=dedent(
+            f"""
+            **Task**: take the output from the enrichment verification task and output it as txt file
 
             **Note**: {self.__tip_section()}
             """
-            ),
-            expected_output=dedent(
-                f"""\
-            a paragraph that highlights the extra information extracted that can be beneficial to add for the current cv
+        ),
+        expected_output="A text file named cv_enrichment.txt containing the enriched data.",
+        output_file="cv_enrichment.txt",
+        agent=agent,
+        async_execution=False,
+        
+    )
 
-            Example:
-
-            "cv_enrichement": "The LinkedIn profile confirms the information presented in the CV. The extensive experience in software development, 
-                leadership roles, and academic credentials are consistently highlighted across both platforms. The proficiency in multiple programming languages 
-                and methodologies is evident. The active online presence, demonstrated through contributions and engagement in the tech community, 
-                along with volunteer work and additional certifications, further enhance the profile, indicating a commitment to continuous learning and community involvement."
-
-
-                """
-            ),
-            agent=agent,
-            context=context,
-            async_execution=True,
-        )
     
 
 

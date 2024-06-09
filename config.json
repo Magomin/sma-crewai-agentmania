@@ -1,0 +1,7 @@
+{
+    "cv_folder": "CV",
+    "cv_enrichment_in_process_folder": "cv_enrichment_in_process",
+    "cv_enrichment_not_available_folder": "cv_enrichment_not_available",
+    "cv_enrichment_complete_folder": "cv_enrichment_complete",
+    "output_directory": "."
+}
